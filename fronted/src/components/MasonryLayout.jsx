@@ -10,7 +10,7 @@ const breakpoints = {
     1000: 2,
     500: 1
 }
-function MansoryLayout({ pins }) {
+function MasonryLayout({ pins }) {
     return (
         <Masonry breakpointCols={breakpoints} className="flex animate-slide-fwd" >
             {pins?.map((item) => <Pin key={item._id} pin={item} className="w-max" />)}
@@ -18,4 +18,4 @@ function MansoryLayout({ pins }) {
     )
 }
 
-export default MansoryLayout
+export default MasonryLayout

@@ -5,6 +5,7 @@ import { MdDownloadForOffline } from 'react-icons/md';
 import { AiTwotoneDelete } from 'react-icons/ai';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 import images from '../constants/images';
+import Axios from 'axios'
 
 function Pin({ pin }) {
     const [postHovered, setPostHovered] = useState(false);
@@ -15,6 +16,14 @@ function Pin({ pin }) {
     const user = localStorage.getItem('user') !== 'undefined' ? JSON.parse(localStorage.getItem('user')) : localStorage.clear();
     let alreadySaved = pin?.save?.filter((item) => item?.postedBy?._id === user?.googleId);
     alreadySaved = alreadySaved?.length > 0 ? alreadySaved : [];
+
+    function savePin(pin) {
+        Axios.post(`${process.env.VITE_SERVER_URL}/users//pins/`, {})
+    }
+
+    function deletePin(pin) {
+        
+    }
 
     return (
         <div className="m-2">

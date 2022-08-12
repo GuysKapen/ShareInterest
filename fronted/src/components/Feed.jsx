@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import MasonryLayout from './MansoryLayout'
+import MasonryLayout from './MasonryLayout'
 import Spinner from './Spinner'
 import Axios from 'axios'
 
@@ -12,7 +12,6 @@ function Feed() {
   useEffect(() => {
     setLoading(true)
     const token = localStorage.getItem("token")
-    console.log("token", token);
     if (token) {
       Axios.get("http://localhost:9000/users/62f1b6d43a40702f8594af60/pins", { params: { token: token } }).then(res => {
         setPins(res.data)
@@ -22,7 +21,6 @@ function Feed() {
     }
     Axios.post("http://localhost:9000/authenticate", { email: "admin@mail.com", password: "password" }).then(res => {
       localStorage.setItem("token", res.data["token"])
-      console.log("Authenticate", localStorage.getItem("token"));
       Axios.get("http://localhost:9000/users/62f1b6d43a40702f8594af60/pins", { params: { token: res.data["token"] } }).then(res => {
         setPins(res.data)
         setLoading(false);

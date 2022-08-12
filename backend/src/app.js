@@ -8,6 +8,7 @@ import jwt from 'jsonwebtoken';
 import User from './models/user';
 import Item from './models/item';
 import Pin from './models/pin';
+import Category from './models/category';
 
 import config from 'config';
 import db from './db/db';

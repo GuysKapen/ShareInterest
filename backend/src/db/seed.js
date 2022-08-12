@@ -1,10 +1,10 @@
-require('dotenv').config()
+import dotevn from 'dotenv'
 import Category from "../models/category.js"
 import Pin from "../models/pin.js"
-import User from "../models/user.js"
+// import User from "../models/user.js"
 import bcrypt from 'bcrypt';
-const mongoose = require("mongoose");
 import mongoose from "mongoose"
+dotevn.config()
 //create your array. i inserted only 1 object here
 function convertToSlug(Text) {
     return Text.toLowerCase()
@@ -79,22 +79,23 @@ mongoose
     });
 // save your data. this is an async operation
 // after you make sure you seeded all the products, disconnect automatically
-categoriess.map(async (p, index) => {
-    await p.save((err, result) => {
-        if (index === categoriess.length - 1) {
-            console.log("DONE!");
-            // mongoose.disconnect();
-        }
-    });
-});
+// categoriess.map(async (p, index) => {
+//     await p.save((err, result) => {
+//         if (index === categoriess.length - 1) {
+//             console.log("DONE!");
+//             // mongoose.disconnect();
+//         }
+//     });
+// });
 
 const pins = []
-for (let index = 1; index <= 23; index++) {
+for (let index = 1; index <= 33-26; index++) {
     // const pins = [
     pins.push(new Pin({
-        title: `Pin ${index}`,
+        title: `Pin ${26+index}`,
         destination: "https://google.com",
-        image: `uploads/media/62f1b6d43a40702f8594af60/images/pin_${index}.png`,
+        image: `uploads/media/62f1b6d43a40702f8594af60/images/pin_${26+index}.png`,
+        category: new mongoose.mongo.ObjectId("62f1b65dd545ce7ffa54ded4"),
         owner: new mongoose.mongo.ObjectId("62f1b6d43a40702f8594af60"),
         poster: new mongoose.mongo.ObjectId("62f1b6d43a40702f8594af60")
     }))
@@ -111,28 +112,28 @@ pins.map(async (p, index) => {
 });
 
 
-const users = [
-    new User({
-        _id: new mongoose.mongo.ObjectId('59b50d152d9f6b4110ec9a68'),
-        email: 'user@mail.com',
-        plainPassword: 'password',
-        role: 'user',
-        items: []
-    }),
-    new User({
-        _id: new mongoose.mongo.ObjectId('62f1b6d43a40702f8594af60'),
-        email: 'admin@mail.com',
-        plainPassword: 'password',
-        role: 'admin',
-    }),
-]
+// const users = [
+//     new User({
+//         _id: new mongoose.mongo.ObjectId('59b50d152d9f6b4110ec9a68'),
+//         email: 'user@mail.com',
+//         plainPassword: 'password',
+//         role: 'user',
+//         items: []
+//     }),
+//     new User({
+//         _id: new mongoose.mongo.ObjectId('62f1b6d43a40702f8594af60'),
+//         email: 'admin@mail.com',
+//         plainPassword: 'password',
+//         role: 'admin',
+//     }),
+// ]
 
-users.map(async (p, index) => {
-    console.log(p);
-    await p.save((err, result) => {
-        if (index === users.length - 1) {
-            console.log("DONE!");
-            // mongoose.disconnect();
-        }
-    });
-});
+// users.map(async (p, index) => {
+//     console.log(p);
+//     await p.save((err, result) => {
+//         if (index === users.length - 1) {
+//             console.log("DONE!");
+//             // mongoose.disconnect();
+//         }
+//     });
+// });

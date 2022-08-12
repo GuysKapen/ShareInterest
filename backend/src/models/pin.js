@@ -13,7 +13,7 @@ const PinSchema = new Schema({
   destination: {
     type: String,
   },
-  categoryRef: {
+  category: {
     type: Schema.Types.ObjectId,
     ref: 'Category',
   },
@@ -43,4 +43,5 @@ const PinSchema = new Schema({
 
 PinSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model('Pin', PinSchema);
+const Pin = mongoose.model('Pin', PinSchema);
+export default Pin

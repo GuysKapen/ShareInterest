@@ -7,6 +7,7 @@ import images from '../constants/images'
 function Login() {
 
     function responseGoogle(response) {
+        console.log(response);
         localStorage.setItem('user', JSON.stringify(response.profileObj))
 
         const { name, googleId, imageUrl } = response.profileObj
