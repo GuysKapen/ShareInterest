@@ -1,3 +1,4 @@
+require('dotenv').config()
 const host = process.env.DB_HOST || 'localhost';
 
 module.exports = {
@@ -5,9 +6,8 @@ module.exports = {
     port: 9000
   },
   database: {
-    url: `mongodb://${host}/node-express-skeleton-dev`,
+    url: host,
     properties: {
-      useMongoClient: true
     }
   },
   key: {

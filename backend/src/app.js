@@ -1,11 +1,13 @@
+require('dotenv').config()
 import express from 'express';
 import bodyParser from 'body-parser';
-import mongoose from'mongoose';
+import mongoose from 'mongoose';
 import morgan from 'morgan';
-import jwt from'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 import User from './models/user';
 import Item from './models/item';
+import Pin from './models/pin';
 
 import config from 'config';
 import db from './db/db';
@@ -16,6 +18,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(morgan('dev'));
+app.use('/uploads', express.static('uploads'))
 app.use('/', routes);
 
 const port = process.env.PORT || config.server.port;

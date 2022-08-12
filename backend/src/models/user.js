@@ -4,73 +4,146 @@ import bcrypt from 'bcrypt';
 
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
+  name: {
+    type: String,
+    maxlength: 50
+  },
   email: {
     type: String,
-    required: true,
+    trim: true,
     index: { unique: true }
   },
-  password: {
+  lastname: {
     type: String,
-    required: true
+    maxlength: 50,
+    minlength: 3
+  },
+  firstname: {
+    type: String,
+    maxlength: 50,
+    minlength: 3
   },
   role: {
     type: String,
-    enum : ['user', 'admin'],
+    enum: ['user', 'admin'],
     default: 'user'
   },
-  items : [{
-    type: Schema.Types.ObjectId,
-    ref: 'Item'
-  }]
+  password: {
+    type: String,
+    required: true,
+  },
+  salt: String,
+  resetPasswordLink: {
+    type: String,
+    default: "",
+  },
+  image: String,
+  token: String,
+  tokenExp: Number
 });
 
 UserSchema.set('toJSON', {
-  transform: function(doc, ret, options) {
+  transform: function (doc, ret, options) {
     delete ret.password;
     return ret;
   }
 });
 
-UserSchema.pre('save', function(next) {
-  if (!this.isModified('password')) return next();
+// UserSchema.pre('save', function (next) {
+//   if (!this.isModified('password')) return next();
 
-  bcrypt.hash(this.password, 10, function(err, hash) {
-    if (err) return next(err);
+//   bcrypt.hash(this.password, 10, function (err, hash) {
+//     console.log("err", this);
+//     if (err) return next(err);
 
-    this.password = hash;
-    next();
+//     this.password = hash;
+//     next();
+//   });
+// });
+
+
+UserSchema.statics.findByToken = function (token, cb) {
+  let user = this;
+
+  jwt.verify(token, secretKey, function (err, decode) {
+    user.findOne({ _id: decode, token: token }, function (err, user) {
+      if (err) return cb(err)
+      cb(null, user)
+    })
+  })
+}
+
+UserSchema
+  .virtual("plainPassword")
+  .set(function (plainPassword) {
+    // Use normal, not arrow function to access this
+    this._password = plainPassword;
+    this.salt = this.makeSalt();
+    this.password = this.encryptPassword(plainPassword);
+  })
+  .get(function () {
+    return this._password;
   });
-});
 
-UserSchema.methods.getTokenData = function() {
-  return {
-    id: this.id,
-    email: this.email
-  }
-};
+UserSchema.methods = {
+  makeSalt: function () {
+    return Math.round(new Date().valueOf() * Math.random()) + "";
+  },
 
-UserSchema.methods.verifyPassword = function(candidatePassword, callback) {
-  bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-    if (err) return callback(err);
-    callback(null, isMatch);
-  });
-};
+  encryptPassword: function (password) {
+    if (!password) return "";
+    try {
+      return bcrypt.hashSync(password, 10);
+    } catch (err) {
+      return "";
+    }
+  },
 
-UserSchema.methods.equals = function(user) {
-  return this.id == user.id;
-};
+  authenticate: function (plainPassword) {
+    return this.encryptPassword(plainPassword) === this.password;
+  },
+  verifyPassword: function (candidatePassword, callback) {
+    bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+      if (err) return callback(err);
+      callback(null, isMatch);
+    });
+  },
 
-UserSchema.methods.canRead = function(object) {
-  return this.equals(object) ||
-    (object.owner && object.owner == this.id) ||
-    (object._id && object._id == this.id) ||
-    this.role == "admin";
-};
+  getTokenData: function () {
+    return {
+      id: this.id,
+      email: this.email
+    }
+  },
+  generateToken: function (cb) {
+    let user = this;
+    let token = jwt.sign(user._id.toHexString(), secretKey)
+    user.tokenExp = moment().add(1, 'hour').valueOf();
+    user.token = token
 
-UserSchema.methods.canEdit = function(object) {
-  return this.canRead(object); // can be extended later
+    user.save(function (err, user) {
+      if (err) return cb(err)
+      cb(null, user)
+    })
+  },
+
+  equals: function (user) {
+    return this.id == user.id;
+  },
+
+  canRead: function (object) {
+    return this.equals(object) ||
+      (object.owner && object.owner == this.id) ||
+      (object._id && object._id == this.id) ||
+      this.role == "admin";
+  },
+  canEdit: function (object) {
+    return this.canRead(object); // can be extended later
+  },
 };
 
 UserSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model('User', UserSchema);
+const User = mongoose.model('User', UserSchema);
+// module.exports = User
+export default User
