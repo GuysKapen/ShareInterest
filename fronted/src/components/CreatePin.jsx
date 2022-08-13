@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
+import fs from 'fs'
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { MdDelete } from 'react-icons/md';
 
 import { categories } from '../utils/data';
 import Spinner from './Spinner';
+import axios from 'axios'
+import FormData from 'form-data'; // npm install --save form-
+import { imgUrlFor } from '../utils/utils'
 
 const CreatePin = ({ user }) => {
   const [title, setTitle] = useState('');
@@ -18,13 +22,32 @@ const CreatePin = ({ user }) => {
 
   const navigate = useNavigate();
 
+  const serverUrl = import.meta.env.VITE_SERVER_URL
+  const userId = '62f1b6d43a40702f8594af60'
+  const token = localStorage.getItem("token")
+
   const uploadImage = (e) => {
+    console.log('upload');
     const selectedFile = e.target.files[0];
     // uploading asset to sanity
     if (selectedFile.type === 'image/png' || selectedFile.type === 'image/svg' || selectedFile.type === 'image/jpeg' || selectedFile.type === 'image/gif' || selectedFile.type === 'image/tiff') {
       setWrongImageType(false);
       setLoading(true);
-      
+
+      const form = new FormData();
+      form.append('image', selectedFile);
+
+      const requestConfig = {
+        headers: {
+          // ...form.getHeaders()
+        }
+      };
+      axios.post(`${serverUrl}/users/${userId}/uploads/image`, form).then(res => {
+        console.log(res.data.data.name);
+        setImageAsset(res.data.data.name)
+        setLoading(false)
+      })
+
     } else {
       setLoading(false);
       setWrongImageType(true);
@@ -32,26 +55,29 @@ const CreatePin = ({ user }) => {
   };
 
   const savePin = () => {
-    if (title && about && destination && imageAsset?._id && category) {
+    console.log(token);
+    if (title && about && destination && imageAsset) {
       const doc = {
-        _type: 'pin',
         title,
         about,
         destination,
-        image: {
-          _type: 'image',
-          asset: {
-            _type: 'reference',
-            _ref: imageAsset?._id,
-          },
-        },
-        userId: user._id,
-        postedBy: {
-          _type: 'postedBy',
-          _ref: user._id,
-        },
+        image: imageAsset,
+        poster: userId,
+        postedBy: userId,
         category,
+        token: token
       };
+
+      axios.post(`${serverUrl}/users/${userId}/pins`, doc, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'x-access-token': token,
+        }
+      })
+        .then(res => {
+          navigate('/');
+        })
 
     } else {
       setFields(true);
@@ -105,7 +131,7 @@ const CreatePin = ({ user }) => {
             ) : (
               <div className="relative h-full">
                 <img
-                  src={imageAsset?.url}
+                  src={imgUrlFor(serverUrl, userId, imageAsset)}
                   alt="uploaded-pic"
                   className="h-full w-full"
                 />
@@ -165,7 +191,7 @@ const CreatePin = ({ user }) => {
               >
                 <option value="others" className="sm:text-bg bg-white">Select Category</option>
                 {categories.map((item) => (
-                  <option className="text-base border-0 outline-none capitalize bg-white text-black " value={item.name}>
+                  <option key={item.name} className="text-base border-0 outline-none capitalize bg-white text-black " value={item.name}>
                     {item.name}
                   </option>
                 ))}

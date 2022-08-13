@@ -16,6 +16,6 @@ module.exports = {
   },
   pagination: {
     defaultPage: 1,
-    defaultLimit: 24
+    defaultLimit: 240
   }
 };

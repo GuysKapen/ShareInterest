@@ -50,7 +50,6 @@ exports.delete = function(req, res) {
 };
 
 exports.loadUser = function (req, res, next) {
-  console.log(req.params.userId);
   User.findById(req.params.userId, function (err, user) {
     if (err) return response.sendNotFound(res);
     if (!req.locals) req.locals = {};

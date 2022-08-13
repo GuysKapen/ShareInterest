@@ -24,7 +24,7 @@ exports.create = function (req, res) {
   item.save(function (err, item) {
     if (err) return response.sendBadRequest(res, err);
 
-    user.items.push(item);
+    user.pins.push(item);
     user.save(function (err, user) {
       if (err) return response.sendBadRequest(res, err);
       response.sendCreated(res, item);

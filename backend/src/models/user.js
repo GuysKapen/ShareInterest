@@ -39,7 +39,11 @@ const UserSchema = new Schema({
   },
   image: String,
   token: String,
-  tokenExp: Number
+  tokenExp: Number,
+  pins: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Pin'
+  }]
 });
 
 UserSchema.set('toJSON', {
